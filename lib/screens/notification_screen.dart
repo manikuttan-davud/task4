@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:task_four/screens/accout_information_screen.dart';
+import 'package:task_four/screens/empty_screen.dart';
 import 'package:task_four/utils/colors.dart';
+import 'package:task_four/utils/data.dart';
 import 'package:task_four/utils/text_style.dart';
 
 import '../widget/common_appbar.dart';
@@ -29,38 +31,44 @@ class ListDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
+    
+    
+    return Dummydata.isEmpty? EmptyScreen() :
+     ListView.separated(
       itemBuilder:((context, index) {
         return InkWell(
           onTap: (() =>  Navigator.push(
     context,
     MaterialPageRoute(builder: (context) => const AccountScreen()),
   )),
-          child: const OneTile(),
+          child:  OneTile(data: Dummydata[index],),
         );
       }),
        separatorBuilder: ((context, index) {
          return const Divider(height: 5,color:  colorFFBABABA,);
        }),
-        itemCount: 10);
+        itemCount: Dummydata.length);
   }
 }
 
 class OneTile extends StatelessWidget {
+
+  final Map data;
   const OneTile({
-    Key? key,
+    Key? key, required this.data,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+   
     return ListTile(
       title: Padding(
         padding:  EdgeInsets.only(left: 20.w),
-        child: Text('よくある質問に項目を追加しました',style: tsS14C0xW700,),
+        child: Text(data['head'],style: tsS14C0xW700,),
       ),
       subtitle: Padding(
         padding:  EdgeInsets.only(left: 20.w),
-        child: Text('2022年 7月23日',style: tsS12C0xW400 ,),
+        child: Text(data['sub'],style: tsS12C0xW400 ,),
       ),
     );
   }

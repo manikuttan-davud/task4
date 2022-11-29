@@ -4,27 +4,24 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:task_four/utils/text_style.dart';
 
-import '../widget/common_appbar.dart';
-
 class EmptyScreen extends StatelessWidget {
   const EmptyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(65),
-        child: CommonAppBar(),
-      ),
-      body: Column(
-        children: [
-       const CircleAvatar(),
-       SizedBox(height: 29.h,),
-     
-        const TextWidget(),
-        ],
-      ),
-    );
+    return 
+    
+       SafeArea(
+        child: Column(
+          children: [
+         const CircleAvatar(),
+         SizedBox(height: 29.h,),
+           
+          const TextWidget(),
+          ],
+        ),
+      );
+  
   }
 }
 
