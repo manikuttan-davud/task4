@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:task_four/utils/url.dart';
@@ -27,10 +26,6 @@ class WebAPIService {
     var response = await dio.post(verifyPhone, data: {
       "phone": "22222222222",
     });
-    log('response :: $response');
-    //SharedPreferences sharedprefs = await SharedPreferences.getInstance();
-    //sharedprefs.setString('customToken',response.data['token']);
-
     return response;
   }
 
@@ -42,7 +37,8 @@ class WebAPIService {
     return idToken;
   }
 
-  Future<DataModel> getAnnouncementList({required authorizationToken}) async {
+  Future<AnnouncementModel> getAnnouncementList(
+      {required authorizationToken}) async {
     dio_response.Response announcementResponse = await dio.get(
       announcementList,
       options: Options(headers: {
@@ -51,15 +47,12 @@ class WebAPIService {
     );
 
     if (announcementResponse.statusCode == 200) {
-      DataModel dataModelDummy = DataModel.fromJson(announcementResponse.data);
+      AnnouncementModel dataModelDummy =
+          AnnouncementModel.fromJson(announcementResponse.data);
       log(dataModelDummy.toString());
       return dataModelDummy;
     } else {
       throw Exception('Failed to load data');
     }
-
-    // final lastResponseJson = jsonDecode(lastResponse.data);
-
-    // return DataModel.fromJson( lastResponseJson);
   }
 }

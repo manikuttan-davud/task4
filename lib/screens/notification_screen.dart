@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:task_four/model/one_tile_model.dart';
 import 'package:task_four/screens/accout_information_screen.dart';
 import 'package:task_four/screens/empty_screen.dart';
 import 'package:task_four/services/web_services.dart';
 import 'package:task_four/utils/colors.dart';
-import 'package:task_four/utils/data.dart';
 import 'package:task_four/utils/text_style.dart';
 
 import '../widget/common_appbar.dart';
 
 class NotificationScreen extends StatefulWidget {
+  static const String route = '/notifications_screen';
   const NotificationScreen({super.key});
 
   @override
@@ -18,6 +19,8 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  RxBool isLoading = false.obs;
+
   @override
   void initState() {
     Future.microtask(() async => await _initAsync());
@@ -26,7 +29,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   var response;
   var idToken;
-  DataModel? announcementResponse;
+  AnnouncementModel? announcementResponse;
 
   @override
   Widget build(BuildContext context) {
@@ -35,30 +38,36 @@ class _NotificationScreenState extends State<NotificationScreen> {
           preferredSize: Size.fromHeight(65),
           child: CommonAppBar(),
         ),
-        body: ListDetails(announcement: []));
+        body: Obx(() {
+          return isLoading.value
+              ? Container(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: 40.w,
+                    height: 40.w,
+                    child: const CircularProgressIndicator(),
+                  ),
+                )
+              : ListDetails(announcement: announcementResponse);
+        }));
   }
 
   _initAsync() async {
+    isLoading.value = true;
+    //TODO: CREATE A MODEL FOR CUSTOM TOKEN RESPONSE
     final response = await WebAPIService().getToken();
-    //final sharedprefs = await SharedPreferences.getInstance();
-    // sharedprefs.setStringList('token',response['token']);
     final newToken = response.data['result']['token'].toString();
-
+    //TODO: CREATE A MODEL FOR ID TOKEN RESPONSE
     idToken = await WebAPIService().getIdToken(customToken: newToken);
     final lastToken = idToken.data['idToken'].toString();
-
     announcementResponse = await WebAPIService()
         .getAnnouncementList(authorizationToken: lastToken);
-
-    // if(lastResponse.statusCode==200){
-    //  DataModel announcement=DataModel.fromJson(lastResponse.data);
-    //  DataModel announcement=DataModel.fromJson(lastResponse);
+    isLoading.value = false;
   }
 }
-//}
 
 class ListDetails extends StatelessWidget {
-  final List announcement;
+  final AnnouncementModel? announcement;
   const ListDetails({
     Key? key,
     required this.announcement,
@@ -66,7 +75,7 @@ class ListDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return announcement.isEmpty
+    return (announcement?.result?.data?.isEmpty ?? true)
         ? const EmptyScreen()
         : ListView.separated(
             itemBuilder: ((context, index) {
@@ -77,7 +86,7 @@ class ListDetails extends StatelessWidget {
                           builder: (context) => const AccountScreen()),
                     )),
                 child: OneTile(
-                  data: announcement[index],
+                  data: announcement?.result?.data?[index],
                 ),
               );
             }),
@@ -87,12 +96,12 @@ class ListDetails extends StatelessWidget {
                 color: colorFFBABABA,
               );
             }),
-            itemCount: Dummydata.length);
+            itemCount: announcement!.result!.data!.length);
   }
 }
 
 class OneTile extends StatelessWidget {
-  final DataModel data;
+  final Announcement? data;
   const OneTile({
     Key? key,
     required this.data,
@@ -104,14 +113,14 @@ class OneTile extends StatelessWidget {
       title: Padding(
         padding: EdgeInsets.only(left: 20.w),
         child: Text(
-          data.name,
+          data?.createdBy?.name ?? '',
           style: tsS14C0xW700,
         ),
       ),
       subtitle: Padding(
         padding: EdgeInsets.only(left: 20.w),
         child: Text(
-          data.role,
+          data?.subject ?? '',
           style: tsS12C0xW400,
         ),
       ),
