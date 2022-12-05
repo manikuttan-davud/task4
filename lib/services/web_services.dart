@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:task_four/utils/url.dart';
-
-
 import '../model/one_tile_model.dart';
+import 'package:dio/dio.dart' as dio_response;
 
- 
 class WebAPIService {
   static final WebAPIService _instance = WebAPIService._initialise();
   WebAPIService._initialise()
@@ -27,57 +24,42 @@ class WebAPIService {
 
   /// API CALL TO GET TOKEN FROM BACKEND
   getToken() async {
-    var response = await dio
-        .post(verifyPhone, data: {
+    var response = await dio.post(verifyPhone, data: {
       "phone": "22222222222",
     });
     log('response :: $response');
-     //SharedPreferences sharedprefs = await SharedPreferences.getInstance();
-     //sharedprefs.setString('customToken',response.data['token']);
+    //SharedPreferences sharedprefs = await SharedPreferences.getInstance();
+    //sharedprefs.setString('customToken',response.data['token']);
 
-   return response;
-   
+    return response;
   }
-   getIdToken({required String customToken}) async{
-     var idToken = await dio.post(signInCustomToken,
-     data: {
-    "token" : customToken,
-    "returnSecureToken" : true
-}
 
-     );
+  getIdToken({required String customToken}) async {
+    var idToken = await dio.post(signInCustomToken,
+        data: {"token": customToken, "returnSecureToken": true});
 
-       log('idToken :: $idToken');
-     return idToken;
+    log('idToken :: $idToken');
+    return idToken;
+  }
 
+  Future<DataModel> getAnnouncementList({required authorizationToken}) async {
+    dio_response.Response announcementResponse = await dio.get(
+      announcementList,
+      options: Options(headers: {
+        'Authorization': authorizationToken,
+      }),
+    );
 
-   
-   }
-      getAnnouncementList({required authorizationToken}) async{
-     var announcementResponse = await dio.get(announcementList,
-        options: Options(
-      headers:{
-        'Authorization':authorizationToken,
-      
-      }
-      
-        ),
-        
-           
-        );
-        
-     if(announcementResponse.statusCode == 200 ){
-         return DataModel.fromJson(jsonDecode(announcementResponse.data));
-         
-        }else{
-       
-         throw Exception('Failed to load data');
-       }
-      
-      // final lastResponseJson = jsonDecode(lastResponse.data);
+    if (announcementResponse.statusCode == 200) {
+      DataModel dataModelDummy = DataModel.fromJson(announcementResponse.data);
+      log(dataModelDummy.toString());
+      return dataModelDummy;
+    } else {
+      throw Exception('Failed to load data');
+    }
 
-        // return DataModel.fromJson( lastResponseJson);
-      }
-      
+    // final lastResponseJson = jsonDecode(lastResponse.data);
 
+    // return DataModel.fromJson( lastResponseJson);
+  }
 }
