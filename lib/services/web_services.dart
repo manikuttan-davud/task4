@@ -1,7 +1,13 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:task_four/utils/url.dart';
 
+
+import '../model/one_tile_model.dart';
+
+ 
 class WebAPIService {
   static final WebAPIService _instance = WebAPIService._initialise();
   WebAPIService._initialise()
@@ -22,11 +28,56 @@ class WebAPIService {
   /// API CALL TO GET TOKEN FROM BACKEND
   getToken() async {
     var response = await dio
-        .post('https://be.monsuke.jp:444/careWorker/verify-phone', data: {
+        .post(verifyPhone, data: {
       "phone": "22222222222",
     });
     log('response :: $response');
+     //SharedPreferences sharedprefs = await SharedPreferences.getInstance();
+     //sharedprefs.setString('customToken',response.data['token']);
 
-    return response;
+   return response;
+   
   }
+   getIdToken({required String customToken}) async{
+     var idToken = await dio.post(signInCustomToken,
+     data: {
+    "token" : customToken,
+    "returnSecureToken" : true
+}
+
+     );
+
+       log('idToken :: $idToken');
+     return idToken;
+
+
+   
+   }
+      getAnnouncementList({required authorizationToken}) async{
+     var announcementResponse = await dio.get(announcementList,
+        options: Options(
+      headers:{
+        'Authorization':authorizationToken,
+      
+      }
+      
+        ),
+        
+           
+        );
+        
+     if(announcementResponse.statusCode == 200 ){
+         return DataModel.fromJson(jsonDecode(announcementResponse.data));
+         
+        }else{
+       
+         throw Exception('Failed to load data');
+       }
+      
+      // final lastResponseJson = jsonDecode(lastResponse.data);
+
+        // return DataModel.fromJson( lastResponseJson);
+      }
+      
+
 }

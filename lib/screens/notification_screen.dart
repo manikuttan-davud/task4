@@ -1,7 +1,10 @@
-import 'dart:developer';
+
+
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:task_four/model/one_tile_model.dart';
 import 'package:task_four/screens/accout_information_screen.dart';
 import 'package:task_four/screens/empty_screen.dart';
 import 'package:task_four/services/web_services.dart';
@@ -10,8 +13,9 @@ import 'package:task_four/utils/data.dart';
 import 'package:task_four/utils/text_style.dart';
 
 import '../widget/common_appbar.dart';
-
+  
 class NotificationScreen extends StatefulWidget {
+
   const NotificationScreen({super.key});
 
   @override
@@ -19,6 +23,10 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+ 
+
+  
+  
   @override
   void initState() {
     Future.microtask(() async => await _initAsync());
@@ -26,33 +34,52 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   var response;
-
+  var idToken;
+  var  announcementResponse;
+ 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-        appBar: PreferredSize(
+    return   Scaffold(
+        appBar: const PreferredSize(
           preferredSize: Size.fromHeight(65),
           child: CommonAppBar(),
         ),
-        body: ListDetails());
+        body: ListDetails(announcement: []));
   }
 
   _initAsync() async {
-    response = await WebAPIService().getToken();
+    
+    final response = await WebAPIService().getToken();
+    //final sharedprefs = await SharedPreferences.getInstance();
+   // sharedprefs.setStringList('token',response['token']);
+  final newToken =response.data['result']['token'].toString();
+  
+    idToken = await WebAPIService().getIdToken(customToken: newToken);
+       final lastToken =idToken.data['idToken'].toString();
 
-    log(response.data['result']['user_verified'].toString());
+   announcementResponse = await   WebAPIService().getAnnouncementList(authorizationToken:lastToken);
+    
+   
+    
+   // if(lastResponse.statusCode==200){
+   //  DataModel announcement=DataModel.fromJson(lastResponse.data);
+   //  DataModel announcement=DataModel.fromJson(lastResponse);
+    }
+    
+
   }
-}
-
+//}
+  
 class ListDetails extends StatelessWidget {
+  final List announcement ;
   const ListDetails({
-    Key? key,
+    Key? key,required this.announcement,  
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Dummydata.isEmpty
-        ? EmptyScreen()
+    return announcement.isEmpty
+        ? const EmptyScreen()
         : ListView.separated(
             itemBuilder: ((context, index) {
               return InkWell(
@@ -62,7 +89,7 @@ class ListDetails extends StatelessWidget {
                           builder: (context) => const AccountScreen()),
                     )),
                 child: OneTile(
-                  data: Dummydata[index],
+                  data:announcement[index],
                 ),
               );
             }),
@@ -72,15 +99,15 @@ class ListDetails extends StatelessWidget {
                 color: colorFFBABABA,
               );
             }),
-            itemCount: Dummydata.length);
+            itemCount:Dummydata.length);
   }
 }
 
 class OneTile extends StatelessWidget {
-  final Map data;
+  final DataModel data;
   const OneTile({
     Key? key,
-    required this.data,
+  required this.data,
   }) : super(key: key);
 
   @override
@@ -89,14 +116,14 @@ class OneTile extends StatelessWidget {
       title: Padding(
         padding: EdgeInsets.only(left: 20.w),
         child: Text(
-          data['head'],
+          data.name,
           style: tsS14C0xW700,
         ),
       ),
       subtitle: Padding(
         padding: EdgeInsets.only(left: 20.w),
         child: Text(
-          data['sub'],
+        data.role,
           style: tsS12C0xW400,
         ),
       ),
