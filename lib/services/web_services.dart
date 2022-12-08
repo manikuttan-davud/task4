@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:task_four/model/custom_token_model.dart';
+import 'package:task_four/model/token_response_model.dart';
 import 'package:task_four/utils/url.dart';
 import '../model/one_tile_model.dart';
 import 'package:dio/dio.dart' as dio_response;
@@ -23,27 +25,35 @@ class WebAPIService {
 
   /// API CALL TO GET TOKEN FROM BACKEND
   getToken() async {
-    var response = await dio.post(verifyPhone, data: {
-      "phone": "22222222222",
-    });
-    return response;
+    Map data ={
+       "phone": "22222222222"
+    };
+    var response = await dio.post(verifyPhone, 
+    data: data
+     );
+    var tokenResponse=TokenResponseModel.fromJson(response.data);
+    return tokenResponse;
   }
 
   getIdToken({required String customToken}) async {
+    Map data ={"token": customToken, "returnSecureToken": true};
     var idToken = await dio.post(signInCustomToken,
-        data: {"token": customToken, "returnSecureToken": true});
+    data: data
+    );
 
     log('idToken :: $idToken');
-    return idToken;
+    var customResponse=CustomTokenModel.fromJson(idToken.data);
+    return customResponse;
   }
 
   Future<AnnouncementModel> getAnnouncementList(
       {required authorizationToken}) async {
+        Map<String,dynamic> header={'Authorization': authorizationToken};
     dio_response.Response announcementResponse = await dio.get(
       announcementList,
-      options: Options(headers: {
-        'Authorization': authorizationToken,
-      }),
+      options: Options(headers: header
+        
+      ),
     );
 
     if (announcementResponse.statusCode == 200) {

@@ -12,10 +12,12 @@ class EmptyScreen extends StatelessWidget {
     return SafeArea(
       child: Column(
         children: [
+          //circle avatar widget
           const CircleAvatar(),
           SizedBox(
             height: 29.h,
           ),
+          //Text above the circle avatar
           const TextWidget(),
         ],
       ),

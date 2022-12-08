@@ -11,23 +11,27 @@ class AccountScreen extends StatelessWidget {
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(65),
+        //Appbar on the account screen
         child: SecondAppBar(),
       ),
       body: Column(
         children: [
+          //Fisrt Text on the Screen
           const TopText(),
           SizedBox(height: 21.h,),
           const ImageWidget(),
           SizedBox(height: 20.h,),
+          //repeating text style
           const RepeatingText(text: 'いつも Kiaigo Service をご利用いただきありがとうございます。',),
            SizedBox(height: 15.h,),
+            //repeating text style
           const RepeatingText(text: '当サービスではこれまで、この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。'),
            SizedBox(height: 15.h,),
-         // const RepeatingText(text: 'この文章はダミーです。'),
-          // SizedBox(height: 5.h,),
+            //repeating text style
           const RepeatingText(text: 'この文章はダミーです。'
           '文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。'),
            SizedBox(height:15.h ,),
+            //repeating text style
           const RepeatingText(text: 'この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。')
 
         ],
@@ -83,7 +87,9 @@ class SecondAppBar extends StatelessWidget {
     return AppBar(
       shadowColor:color1088A0BB ,
       backgroundColor: colorFFFFFF ,
+      //back button on the appbar
       leading: const BackButton(),
+      //text on the appbar
       title: const AppBarText(),
       centerTitle: true,
     );

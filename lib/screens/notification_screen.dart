@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:task_four/model/custom_token_model.dart';
 import 'package:task_four/model/one_tile_model.dart';
+import 'package:task_four/model/token_response_model.dart';
 import 'package:task_four/screens/accout_information_screen.dart';
 import 'package:task_four/screens/empty_screen.dart';
 import 'package:task_four/services/web_services.dart';
 import 'package:task_four/utils/colors.dart';
 import 'package:task_four/utils/text_style.dart';
+
 
 import '../widget/common_appbar.dart';
 
@@ -26,9 +29,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
     Future.microtask(() async => await _initAsync());
     super.initState();
   }
-
-  var response;
-  var idToken;
+ 
+TokenResponseModel? response;
+  CustomTokenModel? idToken;
   AnnouncementModel? announcementResponse;
 
   @override
@@ -40,29 +43,45 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ),
         body: Obx(() {
           return isLoading.value
-              ? Container(
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    width: 40.w,
-                    height: 40.w,
-                    child: const CircularProgressIndicator(),
-                  ),
-                )
+          //Circular progress indicator
+              ? const LoadingIndicator()
+              //list view seperated 
               : ListDetails(announcement: announcementResponse);
         }));
   }
 
   _initAsync() async {
     isLoading.value = true;
-    //TODO: CREATE A MODEL FOR CUSTOM TOKEN RESPONSE
-    final response = await WebAPIService().getToken();
-    final newToken = response.data['result']['token'].toString();
-    //TODO: CREATE A MODEL FOR ID TOKEN RESPONSE
-    idToken = await WebAPIService().getIdToken(customToken: newToken);
-    final lastToken = idToken.data['idToken'].toString();
+   //verifying phone number
+   response = await WebAPIService().getToken();
+     final newToken = response?.result?.token;
+   //receiving custom token
+    idToken = await WebAPIService().getIdToken(customToken: newToken.toString());
+   
+     final lastToken = idToken?.idToken;
+     //authorization
     announcementResponse = await WebAPIService()
         .getAnnouncementList(authorizationToken: lastToken);
     isLoading.value = false;
+  }
+}
+
+class LoadingIndicator extends StatelessWidget {
+  const LoadingIndicator({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        alignment: Alignment.center,
+        child: SizedBox(
+          width: 40.w,
+          height: 40.w,
+         //loading indicator
+          child: const CircularProgressIndicator(),
+        ),
+      );
   }
 }
 
@@ -85,7 +104,8 @@ class ListDetails extends StatelessWidget {
                       MaterialPageRoute(
                           builder: (context) => const AccountScreen()),
                     )),
-                child: OneTile(
+                    //List Tile Widget
+                child: ListTileDetails(
                   data: announcement?.result?.data?[index],
                 ),
               );
@@ -100,9 +120,9 @@ class ListDetails extends StatelessWidget {
   }
 }
 
-class OneTile extends StatelessWidget {
+class ListTileDetails extends StatelessWidget {
   final Announcement? data;
-  const OneTile({
+  const ListTileDetails({
     Key? key,
     required this.data,
   }) : super(key: key);
