@@ -12,7 +12,7 @@ class PasswordScreen extends StatefulWidget {
 }
 
 class _PasswordScreenState extends State<PasswordScreen> {
-  bool isButtonActive=true;
+  bool isButtonActive=false;
    final controller=TextEditingController();
    @override
   void initState() {
